@@ -1,5 +1,7 @@
 # StorageWarden
 
+![StorageWarden: Your Mac. Your space. Your rules. Native macOS, open source, no telemetry.](docs/images/storagewarden-hero.png)
+
 **Your Mac. Your space. Your rules.**
 
 A free, open-source native macOS storage explorer and menu-bar activity monitor.
@@ -7,6 +9,19 @@ Built with Swift 6 and SwiftUI. No subscriptions, accounts, ads, analytics, or c
 
 StorageWarden is free for life. The code is available under the [MIT license](LICENSE).
 Created by [Sjayeshkumar](https://github.com/Sjayeshkumar).
+
+## Meet StorageWarden
+
+![Illustrated feature guide: explore maps, folders and file lists; keep a local index with updates while running; see CPU, memory and disk writes. Review before Trash, with no automatic deletion.](docs/images/storagewarden-features.png)
+
+| What you want to do | What StorageWarden offers |
+| --- | --- |
+| Understand what is taking up space | Sunburst and treemap views, searchable file lists, folder navigation, Quick Look and Finder reveal. |
+| Pick up where you left off | A saved local index and coalesced background updates while the app runs. Changes made while quit need a manual rescan. |
+| Decide what to remove | File explanations and a cleanup review before moving eligible selections to Trash. Nothing is deleted automatically. |
+| Find resource-heavy processes | An on-demand menu-bar panel for CPU, memory and disk writes, plus supported system-level activity readings. |
+
+*The images above are AI-generated brand illustrations, not screenshots of the app. They contain no personal scan data. This is an early source release; see the limitations and build instructions below.*
 
 ## Explore your storage
 

@@ -1,0 +1,12 @@
+# StorageWarden visual assets
+
+Generated with the built-in image generation tool for the public README. These are brand illustrations and an illustrated feature guide, not application screenshots. No personal files, screenshots, or scan data were supplied. Assets are distributed under the repository's MIT license.
+
+## Hero prompt
+
+Use case: ads-marketing. Create a premium wide landscape GitHub README hero image for StorageWarden, a free open-source native macOS storage explorer and activity monitor. Editorial minimalist technology art, warm ivory background with subtle paper grain, sophisticated dark forest green typography, restrained mint and amber accents. Large beautifully typeset exact text on left: "StorageWarden" then "Your Mac. Your space. Your rules." Small footer text "Native macOS • Open source • No telemetry". Right half: exquisite abstract 3D radial disk visualization made of segmented concentric arcs in forest green, sage, muted amber, with a small sculptural shield at its center, soft natural studio shadows, generous negative space. This is a brand illustration, NOT an app screenshot; no fake app windows, no invented features, no numerical performance claims, no Apple logo, no extra text. Crisp high-end graphic design, wide 16:9 composition suitable for a README banner.
+
+## Feature guide prompt
+
+Use case: infographic-diagram. Create a beautiful wide landscape editorial product explainer for StorageWarden, native macOS storage explorer, visually matching premium warm ivory paper background, dark forest green typography, sage mint and restrained amber highlights, generous whitespace. Exact headline "Know your storage. Choose what goes." Three equal beautifully spaced columns with refined semi-3D editorial illustrations, no app window mockups: column 1 segmented radial disk and folder shapes; exact title "Explore" and subtitle "Maps, folders and file lists". Column 2 folder and small clock with circular arrow; exact title "Keep your index" and subtitle "Local saves. Updates while running." Column 3 small shield beside three simple activity bars; exact title "See activity" and subtitle "CPU, memory and disk writes". Across bottom, a subtle divider and exact text "Review before Trash. No automatic deletion." Small footer "StorageWarden | Illustrated feature guide". Highly legible, precise typesetting, minimalist aesthetic, soft realistic shadows, not cartoon clipart, no purple, no personal data, no benchmarks, no claims of per-app GPU, no fake screenshots. 16:9 landscape.
+
