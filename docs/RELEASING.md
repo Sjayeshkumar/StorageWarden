@@ -1,33 +1,34 @@
-# Releasing StorageWarden
+# Packaging StorageWarden
 
-Owner: https://github.com/Sjayeshkumar
-Proposed repository: StorageWarden
+## Current download
 
-## Source release
+Version 0.2.1 is an **early, ad-hoc-signed preview**, not an Apple-notarized release. The DMG includes the app, an Applications shortcut, installation instructions, privacy policy and MIT license. No saved scans or personal preferences are packaged.
 
-Publish only the maintained source, tests, Xcode project, documentation, and license. The repository ignore rules exclude local build products, scan indexes, old ClearSpace sources, user-specific Xcode state, and signing material.
+## Build a DMG
 
-Use the shared StorageWarden scheme. CI builds the app and runs tests on a macOS runner. Tag releases only after native UI checks and performance measurements on a representative large scan.
+Run these commands from the repository root with Xcode installed:
 
-## Public binaries
+```sh
+swift scripts/make-icon.swift
+mkdir -p Sources/SpaceLens/Resources
+iconutil -c icns build/StorageWarden.iconset -o Sources/SpaceLens/Resources/StorageWarden.icns
+xcodebuild -project StorageWarden.xcodeproj -scheme StorageWarden \
+  -configuration Release -derivedDataPath build/Warden \
+  ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO CODE_SIGN_IDENTITY=- build
+bash scripts/package-dmg.sh
+```
 
-The build workflow uploads an ad-hoc development ZIP artifact; it does not silently publish a release. The artifact is not notarized. For public binaries:
+The image and SHA-256 checksum are written to `build/distribution`. Packaging refuses to overwrite an existing DMG. Keep build output out of Git; attach the DMG and checksum to a GitHub release instead.
 
-1. Configure your Apple Developer ID Application certificate outside the source tree.
-2. Build/archive Release with hardened runtime and the intended signing identity.
-3. Notarize the signed ZIP using Apple's notary service and staple the approval to the app.
-4. Verify the app on a clean Mac without disabling Gatekeeper.
-5. Publish the notarized ZIP and checksum alongside source release notes.
+The icon is original, code-drawn artwork. The script renders each macOS icon size directly; the generated ICNS is committed so ordinary Xcode builds do not need to run the script.
 
-Apple signing credentials are not included. Do not claim notarization or instruct users to disable Gatekeeper for a development build.
+## Before calling a release ready for everyone
 
-## Release checks
+1. Run the tests and check first launch, permissions, scans, cancellation, saved scans, background updates, cleanup review and menu-bar monitoring.
+2. Measure responsiveness and memory on a representative large scan. Check Intel and Apple silicon Macs, not just one development machine.
+3. Sign the app with an Apple Developer ID Application certificate and hardened runtime. Keep signing credentials out of the repository.
+4. Submit the signed app to Apple's notary service, staple its approval, and package that approved app into a new DMG.
+5. Sign and notarize the final DMG and staple its approval. Check installation on a clean Mac with Gatekeeper enabled.
+6. Publish the download, checksum, supported systems and known limitations together.
 
-- First launch presents the privacy introduction and does not start an unsolicited scan.
-- Relaunch restores a saved scan without beginning another full traversal.
-- Scan cancellation preserves previous results.
-- Background events refresh changed folders; dropped events visibly require reconciliation.
-- Scan result sizes and chart proportions pass tests.
-- Process sampling stops after closing the menu panel.
-- No automatic file removal or network transmission occurs.
-- Check light/dark mode, small windows, keyboard navigation, external-drive removal, and permission failures.
+The automated build workflow is not a substitute for these release checks. Do not claim an ad-hoc build is notarized, or tell users to disable Gatekeeper.

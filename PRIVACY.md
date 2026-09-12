@@ -1,33 +1,51 @@
-# StorageWarden privacy policy
+# Privacy, in plain language
 
 Effective September 12, 2026.
 
-StorageWarden collects no data for its developer and sends no data to a server.
-It has no analytics SDK, telemetry, advertising, accounts, crash uploader, or automatic update service.
+## The short answer
 
-## Data on your own Mac
+**We collect nothing from your use of StorageWarden. The app does not upload your files, scan results, or activity readings.**
 
-To show saved scans, the app stores file and folder names, paths, sizes, dates, classifications, skipped-location information, and app-initiated Trash history in:
+There are no accounts, ads, trackers, analytics, crash-upload tools, or automatic update checks. You do not need an internet connection to scan your storage or view activity.
+
+## What stays on your Mac?
+
+To remember a scan, StorageWarden saves file and folder names, locations, sizes, dates, file categories, locations it could not read, and its cleanup history. It does not save copies of your file contents.
+
+This saved list is stored here:
 
 `~/Library/Application Support/StorageWarden/index.plist`
 
-The directory is restricted to the current user (0700) and the index file to that user (0600). These permissions are not a substitute for disk encryption. File contents are not stored in the index.
-Preferences are stored in the macOS preferences system under `com.sjayeshkumar.storagewarden`.
-Older SpaceLens scan indexes may be imported locally so an upgrade does not require rescanning.
+The folder and file have permissions limited to your Mac user account (0700 and 0600). They are not separately encrypted. Other software running with your account's access may be able to read them.
 
-Activity monitoring reads OS counters and process names locally while its panel is open. The samples are kept in memory only; there is no saved activity history.
-Filesystem change monitoring is local. No file list, process list, or scan result is uploaded.
+Settings are saved through macOS preferences under `com.sjayeshkumar.storagewarden`. If you used the older SpaceLens app, an old saved scan may be imported on your Mac.
 
-## Your controls
+Activity readings come from macOS while the activity panel is open. They stay in memory and are not saved as an activity history. Folder-change monitoring also happens locally.
 
-Scanning starts when you choose to scan. Full Disk Access and launch at login are optional and controlled through macOS. Background folder updates and the menu-bar icon can be disabled in Settings. Quitting the app stops monitoring and watching.
+## You are in control
 
-To erase local index/history, quit StorageWarden and remove its Application Support folder in Finder. The next launch has no saved index. An older SpaceLens index can be re-imported if it still exists; remove that old app's Application Support folder too if you want to erase both versions' scan history.
+- You choose when to start a scan and which folder to scan.
+- Full Disk Access is optional. It allows more locations to be read; it does not upload them.
+- Background updates and the menu-bar icon can be turned off in Settings.
+- Starting at login is optional.
+- Quitting the app stops monitoring and background updates.
+- Files are only moved to Trash after your review. The app does not empty Trash automatically.
 
-Moving files to Trash always requires review. Space is not necessarily freed until you independently empty macOS Trash.
+## Remove your saved scan
 
-## Links and voluntary sharing
+1. Quit StorageWarden.
+2. In Finder, choose **Go > Go to Folder**.
+3. Enter `~/Library/Application Support/StorageWarden`.
+4. Move that StorageWarden folder to Trash. This removes the app's saved scan and cleanup history, not the files you scanned.
 
-Opening GitHub or another link uses your browser and that website's privacy policy. If you voluntarily submit screenshots or diagnostic material in an issue, review it first: paths and process names can be private. StorageWarden never submits them automatically.
+If you previously used SpaceLens, its old saved scan can be imported again. Remove the old `~/Library/Application Support/SpaceLens` folder too if you want to remove both apps' saved scans. Your preferences and macOS backups are separate.
 
-This policy applies to the app distributed from this project, not independent third-party forks.
+## What about links, backups and cloud folders?
+
+The promise above describes what **StorageWarden itself sends**: nothing from your scans or monitoring.
+
+If you click a website link, your browser contacts that website under its privacy policy. If you post a screenshot or issue on GitHub, you choose what to share. Check for private names and file paths first; the app never submits them automatically.
+
+Your own backup software, cloud-sync settings, and macOS services work independently of StorageWarden. For example, opening a cloud-only file may cause its provider to download it. We cannot promise that those other services never transfer data.
+
+This policy covers the official StorageWarden project, not modified versions published by other people.

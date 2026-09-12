@@ -1,0 +1,60 @@
+STORAGEWARDEN - START HERE
+Free. Open source. Privacy first.
+
+WHAT YOU NEED
+A Mac with macOS 15 or newer, using Apple silicon or Intel.
+No account, subscription or Xcode installation is needed.
+
+INSTALL
+1. Download the DMG from the official StorageWarden release page:
+   https://github.com/Sjayeshkumar/StorageWarden/releases/tag/v0.2.1
+2. Double-click the DMG.
+3. Drag StorageWarden onto the Applications folder in the disk window.
+4. Open Applications and double-click StorageWarden.
+5. Eject the StorageWarden disk image in Finder when you are finished.
+
+IMPORTANT: THIS IS AN EARLY PREVIEW
+This build is ad-hoc signed. It is not Developer ID signed or notarized
+by Apple. macOS may block it because it cannot verify the developer.
+A successful download does not mean Apple has checked this app.
+
+Only proceed if you trust this official source and accept the risk.
+After an attempted launch, macOS may offer an app-specific Open Anyway
+button in System Settings > Privacy & Security. Read the warning before
+using it. If you are unsure, cancel and wait for a notarized release.
+Do not disable Gatekeeper, remove quarantine using Terminal, or bypass
+warnings saying an app contains malware or will damage your computer.
+A managed work or school Mac may not allow an exception.
+Apple's explanation: https://support.apple.com/102445
+
+YOUR FIRST SCAN
+Read the introduction, then choose a familiar folder to scan.
+Explore the results, click folders to look inside, and preview files.
+Review cleanup warnings before moving anything to Trash.
+Nothing is removed automatically. Emptying Trash is a separate choice.
+
+Full Disk Access is optional. If needed, enable StorageWarden in
+System Settings > Privacy & Security > Full Disk Access, then quit and
+reopen the app. Some locations may still be unavailable.
+
+EVERYDAY USE
+Your last scan is saved on your Mac. While the app runs, changed folders
+are updated in the background. Changes made while the app is quit need
+a manual rescan. Closing the window keeps the menu-bar app running;
+choose Quit to stop it. Starting at login is optional in Settings.
+Click the shield in the menu bar to see activity readings.
+
+YOUR PRIVACY
+StorageWarden does not send files, scan results or activity readings
+to its developer or any server. No ads, accounts, tracking or analytics.
+Saved scans stay on your Mac. Activity readings are not saved as history.
+Website links open in your browser. Backups and cloud services follow
+your own settings, independently of this app. See PRIVACY.txt for details.
+
+REMOVE THE APP
+Quit StorageWarden, then move it from Applications to Trash.
+To remove its saved scan too, follow the instructions in PRIVACY.txt.
+
+HELP AND SOURCE CODE
+https://github.com/Sjayeshkumar/StorageWarden
+Before sharing a screenshot, hide personal file paths and names.

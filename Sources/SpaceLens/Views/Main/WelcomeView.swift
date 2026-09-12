@@ -5,7 +5,7 @@ struct WelcomeView: View {
     @EnvironmentObject private var session: AppSession
     @AppStorage("introCompleted") private var completed = false
     @State private var page = 0
-    private let titles = ["Your Mac. Your space. Your rules.", "Scan once. Stay informed.", "A guardian, not a gatekeeper."]
+    private let titles = ["Your files stay yours.", "Pick up where you left off.", "You choose what goes."]
     private let symbols = ["shield.lefthalf.filled", "folder.badge.gearshape", "hand.raised.fill"]
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -15,16 +15,16 @@ struct WelcomeView: View {
             Group {
                 switch page {
                 case 0:
-                    Text("A free, open-source view of your storage and your Mac's activity. No accounts, subscriptions, ads, analytics, or data uploads.")
+                    Text("See what takes up space and which processes are busy. StorageWarden works on your Mac. It does not upload your files, scan results, or activity. No accounts, ads, or tracking.")
                     Label("Free for life. Source available under the MIT license.", systemImage: "lock.open")
                 case 1:
-                    Text("Your index stays on this Mac and reopens without another full scan. Close the window and StorageWarden stays available in the menu bar.")
+                    Text("Your last scan is saved on your Mac, so you do not have to start over every time. Close the window to keep StorageWarden in the menu bar. Quit the app to stop it.")
                     Toggle("Refresh changed folders in the background", isOn: $session.backgroundUpdates)
-                    Text("Changes are batched every two minutes. Automatic refresh pauses in Low Power Mode or under thermal pressure. Quit the app to stop watching.").font(.caption)
+                    Text("While running, the app updates changed folders about every two minutes. Updates pause when your Mac needs to save power or cool down. Changes made while the app is quit need a new scan.").font(.caption)
                 default:
-                    Text("Every removal needs your review. System files are protected. Scans work with your existing permissions; Full Disk Access is optional.")
+                    Text("Nothing is removed automatically. Review your choices before moving files to Trash. Start with a folder you choose. Full Disk Access is optional if you want to scan more locations.")
                     Button("Open Full Disk Access Settings") { NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!) }
-                    Text("The local index stores file paths, sizes, dates, and cleanup history. Activity readings stay in memory only. Nothing is sent to us.").font(.caption)
+                    Text("Saved scans contain names, locations, sizes, dates, and cleanup history, not copies of your files. Activity readings are not saved. Nothing is sent to us. Website links open separately in your browser.").font(.caption)
                 }
             }.foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)

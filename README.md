@@ -1,81 +1,89 @@
 # StorageWarden
 
-![StorageWarden: Your Mac. Your space. Your rules. Native macOS, open source, no telemetry.](docs/images/storagewarden-hero.png)
+![StorageWarden: Your Mac. Your space. Your rules.](docs/images/storagewarden-hero.png)
 
-**Your Mac. Your space. Your rules.**
+**Find what is taking up space on your Mac. Decide what to keep.**
 
-A free, open-source native macOS storage explorer and menu-bar activity monitor.
-Built with Swift 6 and SwiftUI. No subscriptions, accounts, ads, analytics, or cloud services.
+StorageWarden is a free, open-source Mac app for exploring your files, reviewing cleanup choices, and seeing which processes are using your Mac's resources.
 
-StorageWarden is free for life. The code is available under the [MIT license](LICENSE).
-Created by [Sjayeshkumar](https://github.com/Sjayeshkumar).
+No subscriptions. No accounts. No ads. No tracking. Free for life under the [MIT license](LICENSE).
 
-## Meet StorageWarden
+## Download and install
 
-![Illustrated feature guide: explore maps, folders and file lists; keep a local index with updates while running; see CPU, memory and disk writes. Review before Trash, with no automatic deletion.](docs/images/storagewarden-features.png)
+**[Download StorageWarden for Mac](https://github.com/Sjayeshkumar/StorageWarden/releases/tag/v0.2.1)**
 
-| What you want to do | What StorageWarden offers |
+Requires **macOS 15 or newer**. The DMG supports Apple silicon and Intel Macs. You do not need Xcode to use the download.
+
+1. Download the `.dmg` file from the release page and double-click it.
+2. Drag **StorageWarden** onto the **Applications** folder inside the window.
+3. Open StorageWarden from Applications, then eject the disk image.
+4. Read the short introduction and choose a folder for your first scan.
+
+**Early preview:** this download is ad-hoc signed, not Developer ID signed or notarized by Apple. macOS may block it. Please read the [installation guide](docs/INSTALL.txt) before deciding to open it. Do not disable your Mac's security protections.
+
+## Privacy comes first
+
+**StorageWarden does not send your files, scan results, or activity readings to us or to any server.** Scanning and monitoring happen on your Mac. The app works without an internet connection.
+
+It saves a list of file names, locations, sizes and dates locally so you can reopen a scan. It does not save copies of your file contents. Activity readings are not saved as history.
+
+Website links open separately in your browser. Backups, cloud-synced folders and macOS services follow your own settings; StorageWarden does not control those. Read the [plain-language privacy policy](PRIVACY.md).
+
+## What can I do with it?
+
+![Explore storage, keep a local scan, and see CPU, memory and disk activity.](docs/images/storagewarden-features.png)
+
+| You want to... | StorageWarden helps you... |
 | --- | --- |
-| Understand what is taking up space | Sunburst and treemap views, searchable file lists, folder navigation, Quick Look and Finder reveal. |
-| Pick up where you left off | A saved local index and coalesced background updates while the app runs. Changes made while quit need a manual rescan. |
-| Decide what to remove | File explanations and a cleanup review before moving eligible selections to Trash. Nothing is deleted automatically. |
-| Find resource-heavy processes | An on-demand menu-bar panel for CPU, memory and disk writes, plus supported system-level activity readings. |
+| Find large files | Browse storage maps, search file lists, and sort by size. |
+| Understand a folder | Open it in the app, preview a file, or show it in Finder. |
+| Review clutter | Look through downloads, archives, caches and recognized developer files. |
+| Remove something | Review eligible files and their warnings before moving them to Trash. Nothing is removed automatically. |
+| Avoid starting over | Reopen your last saved scan and update changed folders while the app runs. |
+| See what is busy | Click the shield in the menu bar for CPU, memory, disk writes and supported system activity readings. |
 
-*The images above are AI-generated brand illustrations, not screenshots of the app. They contain no personal scan data. This is an early source release; see the limitations and build instructions below.*
+*The pictures above are brand illustrations, not screenshots of the app. They contain no personal scan data.*
 
-## Explore your storage
+## Everyday use
 
-- Interactive sunburst, proportional treemap, folder breakdown, size distribution, and sortable file lists.
-- Real file sizes, searchable paths, folder navigation, Quick Look, and Finder reveal.
-- Largest files, old files, media categories, application bundles, and associated app data.
-- Cleanup review for caches, downloads, archives, and recognized build artifacts.
-- Explanations, confidence, importance, and removal consequences before moving files to Trash.
-- Explicit skipped-location reporting and optional Full Disk Access.
+**Start small.** Pick a folder you know. You can give the app optional Full Disk Access later to scan more locations.
 
-## Scan once, keep the index
+**Your last scan is remembered.** While the app runs, changed folders are grouped for updates about every two minutes. Automatic updates wait when your Mac is saving power or too hot. Background changes are saved at most every 15 minutes; manual scans and cleanup save immediately. Changes made while the app is quit need a manual rescan. If the app misses change notifications, it tells you a rescan is needed.
 
-The saved index opens without starting a new scan. The first scan is your choice.
-Metadata is stored locally in a compact binary property list and prepared for browsing on a worker actor.
+**Closing is not quitting.** Close the main window to keep the menu-bar app available. Quit StorageWarden to stop monitoring and background updates. Starting at login is optional in Settings.
 
-While the app runs, Apple's FSEvents API watches indexed locations. Changed directories are grouped for a background refresh every two minutes. Changed directory entries are reconciled while unchanged subtrees reuse immutable records. Background changes are checkpointed at most every 15 minutes; manual scans and cleanup force a checkpoint. Low Power Mode and high thermal pressure postpone automatic refreshes. Dropped event notifications trigger a visible manual-rescan requirement.
+**Activity is on demand.** Readings refresh every three seconds while the activity panel is open. Each process is listed separately, including helpers. CPU use can exceed 100% when a process uses more than one core. System GPU readings depend on your Mac; per-app GPU readings are not available.
 
-Close the main window to keep the menu-bar app running. Quit to stop it. Launch at login is optional in Settings.
-Changes made while the app is quit are not automatically reconciled; the last-updated time remains visible and a manual rescan refreshes the full saved view.
+**Trash is still your choice.** StorageWarden does not empty Trash automatically. Space may not be freed until you empty it yourself.
 
-## Activity, when you need it
+## What is not ready yet?
 
-Click the shield in the menu bar to see system CPU, driver-exposed GPU activity, memory, battery, aggregate network throughput, and a ranked process list showing CPU, physical memory footprint, and disk writes. CPU, memory, and write-rate sorting are available.
+This is an early release, not a replacement for every commercial Mac utility.
 
-The monitor samples every three seconds **only while its panel is open**. It saves no activity history. CPU percentages for a process use one core as 100%, so multithreaded processes may exceed 100%. Helper processes are listed separately. Unreadable processes are omitted. GPU support depends on the driver; per-app GPU readings are not available.
+- Possible duplicates are not confirmed by comparing file contents. Do not treat them as proven copies.
+- Complete app uninstall, app updates and extension removal are not implemented. App bundles and related files are reviewed separately.
+- There is no malware scanner, fan control or "RAM cleaning."
+- Shared files and APFS storage can make size estimates differ from the space actually freed.
+- Very large saved scans can still use substantial memory.
+- The downloadable preview has not been notarized or tested on every supported Mac.
 
-## Build and run
+## For developers
 
-Requirements: macOS 15 or later, Xcode 16 or later, no third-party dependencies.
+Built with Swift 6 and SwiftUI, with no third-party dependencies. Use Xcode 16 or newer.
 
 1. Open `StorageWarden.xcodeproj`.
 2. Select the **StorageWarden** scheme and **My Mac**.
-3. Run. The scheme uses an optimized Release build for everyday use.
+3. Run. The scheme uses an optimized Release build.
 
 ```sh
 xcodebuild -project StorageWarden.xcodeproj -scheme StorageWarden \
-  -configuration Release -derivedDataPath build/Release build
+  -configuration Release -derivedDataPath build/Warden build
 
 xcodebuild -project StorageWarden.xcodeproj -scheme StorageWarden \
   -configuration Debug -derivedDataPath build/Tests test
 ```
 
-The internal Swift module remains `SpaceLens` for source compatibility. The app and bundle are named StorageWarden.
+The internal Swift module is still named `SpaceLens`; the app is StorageWarden.
+See [packaging instructions](docs/RELEASING.md), [contributing](CONTRIBUTING.md), [security](SECURITY.md), and the [feature comparison](docs/FEATURE_COMPARISON.md).
 
-## Current limitations
-
-This is an early release, not a claim of feature parity with commercial utilities.
-
-- Duplicate candidates match size and extension, not file contents. They are explicitly unverified.
-- Application bundles can be reviewed for Trash; related data is reviewed separately. Complete app uninstall, extension removal, and app updates are not implemented.
-- No malware scanning, fan control, privileged helpers, or speculative "RAM cleaning."
-- APFS shared extents and hard links are not deduplicated; allocated bytes are an estimate, not promised reclaimable space.
-- Background refresh rebuilds in-memory lookup tables after changed-subtree scans. Very large indexes still require substantial memory.
-- A full scan is needed to reconcile changes made while the app was not running.
-- Local builds are ad-hoc signed. A broadly distributed binary should be Developer ID signed and notarized; see [release notes](docs/RELEASING.md).
-
-Read the [privacy policy](PRIVACY.md), [contributing guide](CONTRIBUTING.md), and [feature comparison](docs/FEATURE_COMPARISON.md).
+Created by [Sjayeshkumar](https://github.com/Sjayeshkumar).

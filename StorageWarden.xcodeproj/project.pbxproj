@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA7100000000000000000001 /* StorageWarden.icns in Resources */ = {isa = PBXBuildFile; fileRef = AA7100000000000000000002 /* StorageWarden.icns */; };
 		23B62AFAD1A4FD57DB4D1C7B /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E3F62A666E3895F15065FB2 /* WelcomeView.swift */; };
 		C3F5B7BD22EB66DC09D03753 /* ActivityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98F358B170121D5D08B8365 /* ActivityMonitor.swift */; };
 		8E6C7C02EB9B025C0E0DABB6 /* FolderWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CA8A8E66877A4B67BEE9D7 /* FolderWatcher.swift */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AA7100000000000000000002 /* StorageWarden.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = StorageWarden.icns; sourceTree = "<group>"; };
 		2E3F62A666E3895F15065FB2 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		A98F358B170121D5D08B8365 /* ActivityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityMonitor.swift; sourceTree = "<group>"; };
 		53CA8A8E66877A4B67BEE9D7 /* FolderWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderWatcher.swift; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 		81CD477E1708BC9F92292E25 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				AA7100000000000000000002 /* StorageWarden.icns */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -321,6 +324,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				57D808838AB9A0F5441840AE /* README.md in Resources */,
+				AA7100000000000000000001 /* StorageWarden.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,7 +395,7 @@
 		2C98C12EC3AFD5DC025AFA05 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_KEY_CFBundleIconFile = StorageWarden;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = " ";
@@ -403,8 +407,8 @@
 				PRODUCT_NAME = StorageWarden;
 				PRODUCT_MODULE_NAME = SpaceLens;
 				INFOPLIST_KEY_CFBundleDisplayName = StorageWarden;
-				MARKETING_VERSION = 0.2.0;
-				CURRENT_PROJECT_VERSION = 2;
+				MARKETING_VERSION = 0.2.1;
+				CURRENT_PROJECT_VERSION = 3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
@@ -533,7 +537,7 @@
 		E0FCA22BE810A86B3B03FAF5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_KEY_CFBundleIconFile = StorageWarden;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = " ";
@@ -545,8 +549,8 @@
 				PRODUCT_NAME = StorageWarden;
 				PRODUCT_MODULE_NAME = SpaceLens;
 				INFOPLIST_KEY_CFBundleDisplayName = StorageWarden;
-				MARKETING_VERSION = 0.2.0;
-				CURRENT_PROJECT_VERSION = 2;
+				MARKETING_VERSION = 0.2.1;
+				CURRENT_PROJECT_VERSION = 3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
