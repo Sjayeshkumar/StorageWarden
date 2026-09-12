@@ -1,5 +1,7 @@
 # StorageWarden
 
+[![Built with ChatGPT](https://img.shields.io/badge/Built%20with-ChatGPT-10A37F?style=for-the-badge)](https://chatgpt.com/)
+
 ![StorageWarden: Your Mac. Your space. Your rules.](docs/images/storagewarden-hero.png)
 
 **Find what is taking up space on your Mac. Decide what to keep.**
