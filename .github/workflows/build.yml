@@ -1,0 +1,23 @@
+name: Build and Test
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: xcodebuild -project StorageWarden.xcodeproj -scheme StorageWarden -configuration Debug -destination 'platform=macOS' -derivedDataPath build/Tests test CODE_SIGN_IDENTITY=-
+      - name: Build optimized app
+        run: xcodebuild -project StorageWarden.xcodeproj -scheme StorageWarden -configuration Release -derivedDataPath build/Release build CODE_SIGN_IDENTITY=-
+      - name: Package development build
+        run: ditto -c -k --sequesterRsrc --keepParent build/Release/Build/Products/Release/StorageWarden.app build/StorageWarden-development.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StorageWarden-development-not-notarized
+          path: build/StorageWarden-development.zip
