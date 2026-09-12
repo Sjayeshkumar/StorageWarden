@@ -34,7 +34,7 @@ struct AppCommands: Commands {
                 let url = FileManager.default.homeDirectoryForCurrentUser
                     .appendingPathComponent("Library/Application Support/StorageWarden", isDirectory: true)
                 if !FileManager.default.fileExists(atPath: url.path) {
-                    try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+                    try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
                 }
                 NSWorkspace.shared.activateFileViewerSelecting([url])
             }

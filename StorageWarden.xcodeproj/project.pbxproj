@@ -395,6 +395,7 @@
 		2C98C12EC3AFD5DC025AFA05 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				INFOPLIST_KEY_CFBundleIconFile = StorageWarden;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -407,8 +408,8 @@
 				PRODUCT_NAME = StorageWarden;
 				PRODUCT_MODULE_NAME = SpaceLens;
 				INFOPLIST_KEY_CFBundleDisplayName = StorageWarden;
-				MARKETING_VERSION = 0.2.1;
-				CURRENT_PROJECT_VERSION = 3;
+				MARKETING_VERSION = 0.2.2;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
@@ -549,8 +550,8 @@
 				PRODUCT_NAME = StorageWarden;
 				PRODUCT_MODULE_NAME = SpaceLens;
 				INFOPLIST_KEY_CFBundleDisplayName = StorageWarden;
-				MARKETING_VERSION = 0.2.1;
-				CURRENT_PROJECT_VERSION = 3;
+				MARKETING_VERSION = 0.2.2;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;

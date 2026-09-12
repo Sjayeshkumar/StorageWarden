@@ -135,7 +135,7 @@ struct InspectorView: View {
             }
 
             if !session.canDelete(node: node) {
-                Text("Delete blocked: \(node.classification.defaultAction)")
+                Text(node.isDirectory ? "For safety, folders and app bundles cannot be moved here. Open this folder and review individual files, or use Finder." : node.fileIdentity == nil ? "Rescan this folder before cleanup. This older result has no file identity check." : "Delete blocked: \(node.classification.defaultAction)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -235,7 +235,7 @@ struct DeletionReviewSheet: View {
                     }
 
                     Toggle("I have reviewed these files and the impact of removing them.", isOn: $reviewed)
-                    Text("Moving files to Trash does not immediately free disk space. You control when to empty Trash in Finder.").font(.caption).foregroundStyle(.secondary)
+                    Text("Files are placed in private StorageWarden folders inside Trash. Restore them by dragging them out in Finder; automatic Put Back is not provided. Cross-drive moves are blocked. Nothing is permanently deleted.").font(.caption).foregroundStyle(.secondary)
 
                     if let error = session.deletionError {
                         Text(error)
@@ -254,7 +254,7 @@ struct DeletionReviewSheet: View {
                             session.confirmDeletion()
                         }
                         .buttonStyle(.borderedProminent)
-                        .disabled(!reviewed)
+                        .disabled(!reviewed || session.isDeleting)
                     }
                 }
             } else {

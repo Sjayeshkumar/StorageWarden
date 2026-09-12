@@ -10,15 +10,15 @@ There are no accounts, ads, trackers, analytics, crash-upload tools, or automati
 
 ## What stays on your Mac?
 
-To remember a scan, StorageWarden saves file and folder names, locations, sizes, dates, file categories, locations it could not read, and its cleanup history. It does not save copies of your file contents.
+To remember a scan, StorageWarden saves file and folder names, locations, sizes, dates, file categories, file identity information used for safety checks, locations it could not read, and its cleanup history. It does not save copies of your file contents.
 
 This saved list is stored here:
 
 `~/Library/Application Support/StorageWarden/index.plist`
 
-The folder and file have permissions limited to your Mac user account (0700 and 0600). They are not separately encrypted. Other software running with your account's access may be able to read them.
+The folder and file have permissions limited to your Mac user account (0700 and 0600). Redirected folders and linked index files are rejected. Existing permissions are tightened, including extended access rules. They are not separately encrypted. Other software running with your account's access may be able to read them.
 
-Settings are saved through macOS preferences under `com.sjayeshkumar.storagewarden`. If you used the older SpaceLens app, an old saved scan may be imported on your Mac.
+Settings are saved through macOS preferences under `com.sjayeshkumar.storagewarden`. Old SpaceLens scans are no longer imported automatically.
 
 Activity readings come from macOS while the activity panel is open. They stay in memory and are not saved as an activity history. Folder-change monitoring also happens locally.
 
@@ -29,7 +29,7 @@ Activity readings come from macOS while the activity panel is open. They stay in
 - Background updates and the menu-bar icon can be turned off in Settings.
 - Starting at login is optional.
 - Quitting the app stops monitoring and background updates.
-- Files are only moved to Trash after your review. The app does not empty Trash automatically.
+- Individual files are only moved into private StorageWarden folders inside Trash after your review and identity checks. Folder moves and cross-drive moves are disabled. Restore files by dragging them out in Finder. The app does not empty Trash automatically.
 
 ## Remove your saved scan
 
@@ -38,7 +38,7 @@ Activity readings come from macOS while the activity panel is open. They stay in
 3. Enter `~/Library/Application Support/StorageWarden`.
 4. Move that StorageWarden folder to Trash. This removes the app's saved scan and cleanup history, not the files you scanned.
 
-If you previously used SpaceLens, its old saved scan can be imported again. Remove the old `~/Library/Application Support/SpaceLens` folder too if you want to remove both apps' saved scans. Your preferences and macOS backups are separate.
+If you previously used SpaceLens, you may also remove its old `~/Library/Application Support/SpaceLens` folder. StorageWarden no longer re-imports it automatically. Your preferences and macOS backups are separate.
 
 ## What about links, backups and cloud folders?
 

@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 public enum WorkspaceSection: String, Codable, Sendable, CaseIterable, Identifiable {
     case overview = "Overview"
@@ -499,6 +500,32 @@ public struct DeletionPreview: Codable, Sendable, Hashable {
     }
 }
 
+public struct FileIdentity: Codable, Hashable, Sendable {
+    public let device: Int32
+    public let inode: UInt64
+    public let size: Int64
+    public let modifiedSeconds: Int64
+    public let modifiedNanos: Int64
+    public let changedSeconds: Int64
+    public let changedNanos: Int64
+    public let mode: UInt16
+    init(_ value: stat) {
+        device = value.st_dev; inode = value.st_ino; size = value.st_size
+        modifiedSeconds = Int64(value.st_mtimespec.tv_sec); modifiedNanos = Int64(value.st_mtimespec.tv_nsec)
+        changedSeconds = Int64(value.st_ctimespec.tv_sec); changedNanos = Int64(value.st_ctimespec.tv_nsec)
+        mode = value.st_mode
+    }
+    static func read(_ path: String) -> FileIdentity? {
+        var value = stat()
+        guard lstat(path, &value) == 0, value.st_mode & S_IFMT == S_IFREG else { return nil }
+        return FileIdentity(value)
+    }
+    func matchesAfterRename(_ other: FileIdentity) -> Bool {
+        // Renaming can update ctime. Device, inode, kind, length and mtime must remain unchanged.
+        device == other.device && inode == other.inode && size == other.size && mode == other.mode && modifiedSeconds == other.modifiedSeconds && modifiedNanos == other.modifiedNanos
+    }
+}
+
 public final class ScanNode: Identifiable, Codable, Hashable, Sendable {
     // Immutable records are shared by the tree, lookup tables and result lists.
     // Identity is the scan ID; comparing or hashing never traverses descendants.
@@ -517,6 +544,7 @@ public final class ScanNode: Identifiable, Codable, Hashable, Sendable {
     public let lastOpenedAt: Date?
     public let classification: FileClassification
     public let children: [ScanNode]
+    public let fileIdentity: FileIdentity?
 
     public init(
         id: UUID = UUID(),
@@ -531,7 +559,8 @@ public final class ScanNode: Identifiable, Codable, Hashable, Sendable {
         createdAt: Date? = nil,
         lastOpenedAt: Date? = nil,
         classification: FileClassification,
-        children: [ScanNode] = []
+        children: [ScanNode] = [],
+        fileIdentity: FileIdentity? = nil
     ) {
         self.id = id
         self.name = name
@@ -546,6 +575,7 @@ public final class ScanNode: Identifiable, Codable, Hashable, Sendable {
         self.lastOpenedAt = lastOpenedAt
         self.classification = classification
         self.children = children
+        self.fileIdentity = fileIdentity
     }
 
     public var displayName: String {

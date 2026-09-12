@@ -163,6 +163,7 @@ public actor StorageScanner {
             try await Task.sleep(for: .milliseconds(ProcessInfo.processInfo.isLowPowerModeEnabled ? 30 : 8))
         }
         let path = url.path
+        let identity = FileIdentity.read(path)
         let values = try url.resourceValues(forKeys: [
             .nameKey,
             .isDirectoryKey,
@@ -344,6 +345,8 @@ public actor StorageScanner {
         }
 
         filesVisited += 1
+        let finalIdentity = FileIdentity.read(path)
+        let stableIdentity = identity == finalIdentity ? finalIdentity : nil
         let classif = FileIntelligence.classify(
             path: path,
             isDirectory: false,
@@ -366,7 +369,8 @@ public actor StorageScanner {
             createdAt: created,
             lastOpenedAt: accessed,
             classification: classif,
-            children: []
+            children: [],
+            fileIdentity: stableIdentity
         )
     }
 }

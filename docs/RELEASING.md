@@ -2,7 +2,7 @@
 
 ## Current download
 
-Version 0.2.1 is an **early, ad-hoc-signed preview**, not an Apple-notarized release. The DMG includes the app, an Applications shortcut, installation instructions, privacy policy and MIT license. No saved scans or personal preferences are packaged.
+Version 0.2.2 is an **early, ad-hoc-signed preview**, not an Apple-notarized release. The DMG includes the app, an Applications shortcut, installation instructions, privacy policy and MIT license. No saved scans or personal preferences are packaged.
 
 ## Build a DMG
 

@@ -12,7 +12,7 @@ No subscriptions. No accounts. No ads. No tracking. Free for life under the [MIT
 
 ## Download and install
 
-**[Download StorageWarden for Mac](https://github.com/Sjayeshkumar/StorageWarden/releases/tag/v0.2.1)**
+**[Download StorageWarden for Mac](https://github.com/Sjayeshkumar/StorageWarden/releases/tag/v0.2.2)**
 
 Requires **macOS 15 or newer**. The DMG supports Apple silicon and Intel Macs. You do not need Xcode to use the download.
 
@@ -56,17 +56,17 @@ Website links open separately in your browser. Backups, cloud-synced folders and
 
 **Activity is on demand.** Readings refresh every three seconds while the activity panel is open. Each process is listed separately, including helpers. CPU use can exceed 100% when a process uses more than one core. System GPU readings depend on your Mac; per-app GPU readings are not available.
 
-**Trash is still your choice.** StorageWarden does not empty Trash automatically. Space may not be freed until you empty it yourself.
+**Cleanup is deliberately conservative.** Review individual files, not whole folders or app bundles. Older saved scans must be rescanned before cleanup so the app can check file identity. Changed files, links and cross-drive moves are refused. Files are placed in private StorageWarden folders inside Trash. To restore one, drag it out in Finder; automatic Put Back is not provided. Nothing is permanently deleted by StorageWarden.
 
 ## What is not ready yet?
 
 This is an early release, not a replacement for every commercial Mac utility.
 
 - Possible duplicates are not confirmed by comparing file contents. Do not treat them as proven copies.
-- Complete app uninstall, app updates and extension removal are not implemented. App bundles and related files are reviewed separately.
+- Complete app uninstall, app updates and extension removal are not implemented. Whole folders and app bundles can be explored, but not moved to Trash by the app.
 - There is no malware scanner, fan control or "RAM cleaning."
 - Shared files and APFS storage can make size estimates differ from the space actually freed.
-- Very large saved scans can still use substantial memory.
+- Very large saved scans can still use substantial memory. Saved indexes above 512 MB are refused; scan smaller folders instead.
 - The downloadable preview has not been notarized or tested on every supported Mac.
 
 ## For developers

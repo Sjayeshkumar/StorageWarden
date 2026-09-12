@@ -7,7 +7,7 @@ No account, subscription or Xcode installation is needed.
 
 INSTALL
 1. Download the DMG from the official StorageWarden release page:
-   https://github.com/Sjayeshkumar/StorageWarden/releases/tag/v0.2.1
+   https://github.com/Sjayeshkumar/StorageWarden/releases/tag/v0.2.2
 2. Double-click the DMG.
 3. Drag StorageWarden onto the Applications folder in the disk window.
 4. Open Applications and double-click StorageWarden.
@@ -30,7 +30,11 @@ Apple's explanation: https://support.apple.com/102445
 YOUR FIRST SCAN
 Read the introduction, then choose a familiar folder to scan.
 Explore the results, click folders to look inside, and preview files.
-Review cleanup warnings before moving anything to Trash.
+Review cleanup warnings before moving individual files to Trash.
+Whole folders and app bundles cannot be moved by this security release.
+Rescan older results before cleanup. Changed files, links and cross-drive
+moves are refused. Removed files go into private StorageWarden folders
+inside Trash; restore them by dragging them out in Finder, not Put Back.
 Nothing is removed automatically. Emptying Trash is a separate choice.
 
 Full Disk Access is optional. If needed, enable StorageWarden in

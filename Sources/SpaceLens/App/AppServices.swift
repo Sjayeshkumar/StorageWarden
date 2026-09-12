@@ -3,6 +3,7 @@ import CoreServices
 import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
+import Darwin
 
 struct AppServices { static let shared = AppServices() }
 
@@ -78,6 +79,7 @@ public final class AppSession: ObservableObject {
                 state = .completed
                 startWatching()
             }
+            if let message = await snapshotStore.lastLoadError { errorMessage = message }
             isLoadingIndex = false
             // Opening the app never starts a full scan. Onboarding offers the first scan.
         }
@@ -111,7 +113,7 @@ public final class AppSession: ObservableObject {
         return SelectionSummary(count: nodes.count, totalLogicalSize: total, totalAllocatedSize: allocated, lowRiskLogical: low, reviewLogical: review, importantLogical: important, protectedLogical: protected)
     }
     public var canScan: Bool { scanTask == nil && !isLoadingIndex && !isDeleting }
-    public var canDeleteSelection: Bool { !isDeleting && !selectedNodes.isEmpty && selectedNodes.allSatisfy(canDelete(node:)) }
+    public var canDeleteSelection: Bool { canScan && !selectedNodes.isEmpty && selectedNodes.allSatisfy(canDelete(node:)) }
     public var selectedIssues: [ScanIssue] { selectedVolume?.accessibilityIssues ?? [] }
     var categoryBuckets: [CategoryBucket] { currentIndex?.buckets ?? [] }
     var largestFolders: [ScanNode] { currentIndex?.largestFolders ?? [] }
@@ -152,7 +154,7 @@ public final class AppSession: ObservableObject {
         return indexes[volume.id]?.sections[section] ?? []
     }
     public func canDelete(node: ScanNode) -> Bool {
-        node.classification.removeAllowed && node.classification.importance != .critical && node.classification.cleanupRisk != .systemProtected && !volumes.contains { $0.volumeURL == node.path }
+        CleanupPolicy.canRemove(node) && !volumes.contains { $0.volumeURL == node.path }
     }
     public func requestDeleteForSelection() {
         guard canDeleteSelection else { return }
@@ -163,14 +165,22 @@ public final class AppSession: ObservableObject {
     public func deleteNode(_ node: ScanNode) { selectedNodeIDs = [node.id]; requestDeleteForSelection() }
     public func closeDeletionSheet() { isDeletionSheetPresented = false; deletionError = nil; currentDeletionPreview = nil }
     public func confirmDeletion() {
-        guard !isDeleting, let preview = currentDeletionPreview, preview.items.allSatisfy(canDelete(node:)) else { return }
+        guard canScan, let preview = currentDeletionPreview, preview.items.allSatisfy(canDelete(node:)) else { return }
         isDeleting = true
         Task {
             let results = await TrashWorker().move(preview.items)
             trashHistory.insert(contentsOf: results, at: 0)
-            if let failed = results.first(where: { !$0.success }) { deletionError = failed.error }
+            let failures = results.filter { !$0.success }
+            deletionError = failures.first?.error
             trashHistory = Array(trashHistory.prefix(200))
-            selectedNodeIDs.removeAll(); currentDeletionPreview = nil; isDeletionSheetPresented = false; isDeleting = false
+            selectedNodeIDs.removeAll()
+            if failures.isEmpty { currentDeletionPreview = nil; isDeletionSheetPresented = false }
+            else {
+                let paths = Set(failures.map(\.path))
+                let remaining = preview.items.filter { paths.contains($0.path) }
+                currentDeletionPreview = DeletionPreview(title: "Some files were not moved", items: remaining, totalLogicalSize: remaining.reduce(0) { $0 + $1.logicalSize }, totalAllocatedSize: remaining.reduce(0) { $0 + $1.allocatedSize })
+            }
+            isDeleting = false
             await save()
             changed(preview.items.map { $0.url.deletingLastPathComponent().path }, dropped: false)
             refreshChanges(persistImmediately: true)
@@ -286,9 +296,8 @@ actor TrashWorker {
     func move(_ nodes: [ScanNode]) -> [TrashOperation] {
         nodes.map { node in
             do {
-                let canonical = node.url.resolvingSymlinksInPath()
-                guard canonical.path == node.path, !["/System", "/bin", "/sbin", "/usr", "/private"].contains(where: { canonical.path == $0 || canonical.path.hasPrefix($0 + "/") }) else { throw CocoaError(.fileWriteNoPermission) }
-                try FileManager.default.trashItem(at: node.url, resultingItemURL: nil)
+                guard CleanupPolicy.canRemove(node), let identity = node.fileIdentity else { throw SecureFileError.refused("This item needs a fresh scan or must be reviewed in Finder.") }
+                try SecureFileAccess.moveReviewedFile(node.url, expected: identity, trash: FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".Trash"))
                 return TrashOperation(path: node.path, size: node.logicalSize, success: true)
             } catch { return TrashOperation(path: node.path, size: node.logicalSize, success: false, error: error.localizedDescription) }
         }
@@ -734,28 +743,175 @@ public actor StorageSnapshotStore {
     public init(directory: URL? = nil) { customDirectory = directory }
     private var directory: URL { customDirectory ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/StorageWarden", isDirectory: true) }
     private var path: URL { directory.appendingPathComponent("index.plist") }
+    public private(set) var lastLoadError: String?
 
     public func loadSnapshot() async -> ScanSnapshot? {
-        if let data = try? Data(contentsOf: path, options: .mappedIfSafe), let value = try? PropertyListDecoder().decode(ScanSnapshot.self, from: data) { return value }
-        guard customDirectory == nil else { return nil }
-        // Import the previous local index once; it is never discarded simply on launch.
-        let legacy = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/SpaceLens/scan_snapshot_v2.json")
-        let decoder = JSONDecoder(); decoder.dateDecodingStrategy = .iso8601
-        if let data = try? Data(contentsOf: legacy, options: .mappedIfSafe), let value = try? decoder.decode(ScanSnapshot.self, from: data) {
-            _ = await persist(value)
-            return value
+        lastLoadError = nil
+        do {
+            let data = try SecureFileAccess.readIndex(in: directory)
+            return try PropertyListDecoder().decode(ScanSnapshot.self, from: data)
+        } catch {
+            let error = error as NSError
+            if error.domain != NSPOSIXErrorDomain || error.code != Int(ENOENT) {
+                lastLoadError = "The saved scan could not be opened safely. Choose a folder to scan again. \(error.localizedDescription)"
+            }
+            return nil
         }
-        return nil
+        // Do not silently re-import a legacy index after the user removes their saved data.
     }
     public func persist(_ snapshot: ScanSnapshot) async -> String? {
         do {
             let encoder = PropertyListEncoder(); encoder.outputFormat = .binary
             let data = try encoder.encode(snapshot)
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
-            try data.write(to: path, options: [.atomic, .completeFileProtectionUnlessOpen])
-            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: path.path)
+            try SecureFileAccess.writeIndex(data, in: directory)
             return nil
         } catch { return "The local index could not be saved: \(error.localizedDescription)" }
     }
     public func saveSnapshot(_ snapshot: ScanSnapshot) async { _ = await persist(snapshot) }
+}
+
+// Filesystem decisions are repeated at the operation boundary, not trusted from cached UI state.
+enum CleanupPolicy {
+    static func canRemove(_ node: ScanNode) -> Bool {
+        guard !node.isDirectory, node.children.isEmpty, node.fileIdentity != nil,
+              node.classification.removeAllowed, node.classification.importance != .critical,
+              node.classification.cleanupRisk != .systemProtected else { return false }
+        let path = node.path.lowercased()
+        let system = ["/system", "/library", "/bin", "/sbin", "/usr", "/private", "/cores", "/dev", "/etc", "/var"]
+        guard !system.contains(where: { path == $0 || path.hasPrefix($0 + "/") }),
+              !path.split(separator: "/").contains(where: { $0.hasSuffix(".app") }) else { return false }
+        let home = FileManager.default.homeDirectoryForCurrentUser.path.lowercased()
+        let personal = ["Documents", "Desktop", "Pictures", "Movies", "Music", "Library/Mail", "Library/Keychains", "Library/Application Support/StorageWarden"]
+        guard !personal.contains(where: { let root = home + "/" + $0.lowercased(); return path == root || path.hasPrefix(root + "/") }) else { return false }
+        let protectedTypes: Set<String> = ["db", "sqlite", "sqlite3", "realm", "ibd", "mdb", "sql", "vmdk", "qcow", "qcow2", "vdi"]
+        return !protectedTypes.contains(node.url.pathExtension.lowercased())
+    }
+}
+
+enum SecureFileError: LocalizedError {
+    case refused(String)
+    var errorDescription: String? { if case .refused(let message) = self { return message }; return nil }
+}
+
+enum SecureFileAccess {
+    static let indexLimit = 512 * 1024 * 1024
+    private static func failure() -> NSError { NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
+
+    // Walk through directory descriptors, rejecting symbolic links at every component.
+    // /tmp and /var are the standard root-owned macOS aliases, not arbitrary user redirects.
+    static func openDirectory(_ url: URL, create: Bool = false) throws -> Int32 {
+        var path = url.standardizedFileURL.path
+        if path == "/tmp" || path.hasPrefix("/tmp/") { path = "/private" + path }
+        if path == "/var" || path.hasPrefix("/var/") { path = "/private" + path }
+        guard path.hasPrefix("/") else { throw SecureFileError.refused("An absolute folder path is required.") }
+        var current = open("/", O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        guard current >= 0 else { throw failure() }
+        do {
+            for part in path.split(separator: "/").map(String.init) {
+                guard part != ".", part != ".." else { throw SecureFileError.refused("Unsafe folder path.") }
+                if create, mkdirat(current, part, 0o700) != 0, errno != EEXIST { throw failure() }
+                let next = openat(current, part, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+                guard next >= 0 else { throw failure() }
+                close(current); current = next
+            }
+            return current
+        } catch { close(current); throw error }
+    }
+
+    static func makePrivate(_ fd: Int32, mode: mode_t) throws {
+        var info = stat()
+        guard fstat(fd, &info) == 0 else { throw failure() }
+        guard info.st_uid == geteuid() else { throw SecureFileError.refused("The saved-data folder must belong to your Mac account.") }
+        guard fchmod(fd, mode) == 0 else { throw failure() }
+        guard let acl = acl_init(0) else { throw failure() }
+        defer { acl_free(UnsafeMutableRawPointer(acl)) }
+        guard acl_set_fd(fd, acl) == 0 else { throw failure() }
+    }
+
+    static func readIndex(in directory: URL) throws -> Data {
+        let folder = try openDirectory(directory)
+        defer { close(folder) }
+        try makePrivate(folder, mode: 0o700)
+        let file = openat(folder, "index.plist", O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
+        guard file >= 0 else { throw failure() }
+        defer { close(file) }
+        var info = stat()
+        guard fstat(file, &info) == 0 else { throw failure() }
+        guard info.st_mode & S_IFMT == S_IFREG, info.st_nlink == 1,
+              info.st_size >= 0, info.st_size <= indexLimit else { throw SecureFileError.refused("The saved scan is not a supported private file.") }
+        try makePrivate(file, mode: 0o600)
+        let handle = FileHandle(fileDescriptor: file, closeOnDealloc: false)
+        var result = Data()
+        while let chunk = try handle.read(upToCount: 64 * 1024), !chunk.isEmpty {
+            guard result.count <= indexLimit - chunk.count else { throw SecureFileError.refused("The saved scan is too large to open safely.") }
+            result.append(chunk)
+        }
+        return result
+    }
+
+    static func writeIndex(_ data: Data, in directory: URL) throws {
+        guard data.count <= indexLimit else { throw SecureFileError.refused("This scan is too large to save. Scan a smaller folder.") }
+        let folder = try openDirectory(directory, create: true)
+        defer { close(folder) }
+        try makePrivate(folder, mode: 0o700)
+        var old = stat()
+        if fstatat(folder, "index.plist", &old, AT_SYMLINK_NOFOLLOW) == 0 {
+            guard old.st_mode & S_IFMT == S_IFREG, old.st_nlink == 1, old.st_uid == geteuid() else { throw SecureFileError.refused("The saved-scan path is redirected or unsafe.") }
+        } else if errno != ENOENT { throw failure() }
+        let name = ".index-" + UUID().uuidString
+        let file = openat(folder, name, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
+        guard file >= 0 else { throw failure() }
+        defer { close(file); unlinkat(folder, name, 0) }
+        try makePrivate(file, mode: 0o600)
+        try FileHandle(fileDescriptor: file, closeOnDealloc: false).write(contentsOf: data)
+        guard fsync(file) == 0 else { throw failure() }
+        // Atomic replacement through the directory descriptor cannot follow a substituted link.
+        guard renameat(folder, name, folder, "index.plist") == 0 else { throw failure() }
+    }
+
+    static func identity(in parent: Int32, name: String) throws -> FileIdentity {
+        var info = stat()
+        guard fstatat(parent, name, &info, AT_SYMLINK_NOFOLLOW) == 0 else { throw failure() }
+        guard info.st_mode & S_IFMT == S_IFREG else { throw SecureFileError.refused("Only unchanged regular files can be moved. Use Finder for folders or links.") }
+        return FileIdentity(info)
+    }
+
+    // No path-based trash API is used after validation. An exclusive, descriptor-relative rename
+    // moves a single file to a private recovery folder in Trash. Cross-volume copies fail closed.
+    static func moveReviewedFile(_ source: URL, expected: FileIdentity, trash: URL, beforeClaim: (() throws -> Void)? = nil) throws {
+        let parent = try openDirectory(source.deletingLastPathComponent())
+        defer { close(parent) }
+        let name = source.lastPathComponent
+        guard try identity(in: parent, name: name) == expected else { throw SecureFileError.refused("This file changed since its scan. Rescan and review it again.") }
+        let destination = try openDirectory(trash, create: true)
+        defer { close(destination) }
+        var trashInfo = stat()
+        guard fstat(destination, &trashInfo) == 0 else { throw failure() }
+        guard trashInfo.st_uid == geteuid(), trashInfo.st_mode & 0o077 == 0 else { throw SecureFileError.refused("Your Trash folder does not have private permissions. Use Finder instead.") }
+        let bucket = "StorageWarden-" + UUID().uuidString
+        guard mkdirat(destination, bucket, 0o700) == 0 else { throw failure() }
+        var keepBucket = false
+        defer { if !keepBucket { unlinkat(destination, bucket, AT_REMOVEDIR) } }
+        let recovery = openat(destination, bucket, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard recovery >= 0 else { throw failure() }
+        defer { close(recovery) }
+        try makePrivate(recovery, mode: 0o700)
+        try beforeClaim?()
+        guard renameatx_np(parent, name, recovery, name, UInt32(RENAME_EXCL)) == 0 else {
+            if errno == EXDEV { throw SecureFileError.refused("Moving across drives is disabled for safety. Use Finder for this file.") }
+            throw failure()
+        }
+        keepBucket = true
+        do {
+            let moved = try identity(in: recovery, name: name)
+            guard expected.matchesAfterRename(moved) else { throw SecureFileError.refused("The file was replaced or changed during removal.") }
+        } catch {
+            // Never overwrite a new file at the original location during rollback.
+            if renameatx_np(recovery, name, parent, name, UInt32(RENAME_EXCL)) == 0 {
+                keepBucket = false
+                throw SecureFileError.refused("The file changed during removal and was returned to its original location. Rescan before trying again.")
+            }
+            throw SecureFileError.refused("The file changed and could not be returned without overwriting another item. It was preserved in Trash/\(bucket)/\(name). Recover it in Finder before continuing.")
+        }
+    }
 }
